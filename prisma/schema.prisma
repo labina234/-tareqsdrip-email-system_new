@@ -38,6 +38,10 @@ model EmailPreference {
 model EmailSettings {
   id        String   @id @default(cuid())
   
+  // Master controls
+  emailSystemEnabled Boolean @default(true)  // Master kill switch for all emails
+  maintenanceMode    Boolean @default(false) // Shows maintenance banner to users
+  
   // Feature flags controlled by admin
   enableSalesEmails      Boolean @default(true)
   enableOfferEmails      Boolean @default(true)
@@ -52,8 +56,10 @@ model EmailSettings {
   // Rate limiting
   maxEmailsPerDay Int @default(5) // Max marketing emails per user per day
   
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   updatedBy String   // Admin user ID who made the change
+  updatedByName String? // Admin name for display
   
   @@map("email_settings")
 }

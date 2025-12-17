@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { EmailTemplateType } from '@/lib/email/templates';
+export const runtime = "nodejs";
 
 /**
  * GET /api/admin/email/campaigns
@@ -9,7 +10,7 @@ import { EmailTemplateType } from '@/lib/email/templates';
  */
 export async function GET(req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { userId } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,7 +65,7 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { userId } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

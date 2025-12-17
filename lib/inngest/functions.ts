@@ -59,10 +59,10 @@ export const sendEmailCampaign = inngest.createFunction(
             } catch (error) {
               return null;
             }
-          }))
+          })
         );
 
-        return users.filter((u: any) => u !== null && u.email);ail);
+        return users.filter((u: any) => u !== null && u.email);
       } else {
         // Get specific users
         const users = await Promise.all(
@@ -84,7 +84,7 @@ export const sendEmailCampaign = inngest.createFunction(
           })
         );
 
-        return users.filter((u) => u !== null && u.email);
+        return users.filter((u: any) => u !== null && u.email);
       }
     });
 

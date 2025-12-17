@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { inngest } from '@/lib/inngest/client';
+export const runtime = "nodejs";
 
 /**
  * POST /api/admin/email/campaigns/[id]/send
@@ -11,7 +13,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth();
+    const { userId } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,11 +46,10 @@ export async function POST(
     });
 
     // Trigger Inngest function to send emails
-    // You'll implement this with Inngest
-    // await inngest.send({
-    //   name: 'email/campaign.send',
-    //   data: { campaignId: params.id },
-    // });
+    await inngest.send({
+      name: 'email/campaign.send',
+      data: { campaignId: params.id },
+    });
 
     return NextResponse.json({
       success: true,

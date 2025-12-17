@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+export const runtime = "nodejs";
 
 /**
  * GET /api/admin/email/settings
  * Get global email settings (admin only)
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { userId } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,8 +27,13 @@ export async function GET(req: NextRequest) {
 
     // Create default settings if they don't exist
     if (!settings) {
+      const user = await currentUser();
+      const userName = user?.firstName || user?.username || 'Admin';
+      
       settings = await prisma.emailSettings.create({
         data: {
+          emailSystemEnabled: true,
+          maintenanceMode: false,
           enableSalesEmails: true,
           enableOfferEmails: true,
           enableNewProductEmails: true,
@@ -36,7 +42,8 @@ export async function GET(req: NextRequest) {
           fromName: 'TareqsDrip',
           maxEmailsPerDay: 5,
           updatedBy: userId,
-        },
+          updatedByName: userName,
+        } as any,
       });
     }
 
@@ -56,7 +63,7 @@ export async function GET(req: NextRequest) {
  */
 export async function PUT(req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { userId } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,8 +71,13 @@ export async function PUT(req: NextRequest) {
 
     // TODO: Add admin role check here
 
+    const user = await currentUser();
+    const userName = user?.firstName || user?.username || 'Admin';
+
     const body = await req.json();
     const {
+      emailSystemEnabled,
+      maintenanceMode,
       enableSalesEmails,
       enableOfferEmails,
       enableNewProductEmails,
@@ -86,6 +98,8 @@ export async function PUT(req: NextRequest) {
       settings = await prisma.emailSettings.update({
         where: { id: currentSettings.id },
         data: {
+          emailSystemEnabled,
+          maintenanceMode,
           enableSalesEmails,
           enableOfferEmails,
           enableNewProductEmails,
@@ -95,11 +109,14 @@ export async function PUT(req: NextRequest) {
           replyTo,
           maxEmailsPerDay,
           updatedBy: userId,
-        },
+          updatedByName: userName,
+        } as any,
       });
     } else {
       settings = await prisma.emailSettings.create({
         data: {
+          emailSystemEnabled,
+          maintenanceMode,
           enableSalesEmails,
           enableOfferEmails,
           enableNewProductEmails,
@@ -109,7 +126,8 @@ export async function PUT(req: NextRequest) {
           replyTo,
           maxEmailsPerDay,
           updatedBy: userId,
-        },
+          updatedByName: userName,
+        } as any,
       });
     }
 
